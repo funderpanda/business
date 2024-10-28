@@ -3,71 +3,98 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Samee's Business Card</title>
+<title>Samee's Business Card - Responsive</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap');
+
+:root {
+  --card-width: min(510px, 90vw);
+  --card-height: min(290px, 90vw * 0.57);
+  --card-padding: max(20px, 3vw);
+  --name-size: clamp(18px, 4vw, 24px);
+  --title-size: clamp(14px, 3.5vw, 18px);
+  --company-size: clamp(12px, 2.8vw, 14px);
+  --department-size: clamp(10px, 2.4vw, 12px);
+  --details-size: clamp(9px, 2.2vw, 11px);
+}
+
 body {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   margin: 0;
   background-color: #1E1710;
   perspective: 1000px;
+  padding: 20px;
+  box-sizing: border-box;
 }
+
 .card-container {
-  width: 510px;
-  height: 290px;
+  width: var(--card-width);
+  height: var(--card-height);
 }
+
 .card {
   width: 100%;
   height: 100%;
   background-color: #E8E8E8;
   position: relative;
   box-shadow: 0 4px 8px rgba(43, 43, 43, 0.5);
-  padding: 20px;
+  padding: var(--card-padding);
   box-sizing: border-box;
   font-family: 'EB Garamond', 'Garamond', serif;
-  transition: transform 0.1s ease;
+  transition: transform 0.3s ease;
   transform-style: preserve-3d;
+  touch-action: none;
 }
+
 .card > div {
   position: absolute;
   color: #1A1A1A;
 }
+
 .embossed-text {
   --light-shadow: 1px 1px 1px rgba(255,255,255,0.3);
   --dark-shadow: -1px -1px 1px rgba(0,0,0,0.1);
   text-shadow: var(--light-shadow), var(--dark-shadow);
 }
+
 .small-caps {
   font-variant: small-caps;
   font-size: 0.9em;
 }
+
 .small-caps::first-letter {
   font-size: 1.1em;
 }
+
 .old-style-nums {
   font-feature-settings: "onum";
   font-variant-numeric: oldstyle-nums;
 }
+
 .phone {
-  top: 20px;
-  left: 20px;
-  font-size: 14px;
+  top: var(--card-padding);
+  left: var(--card-padding);
+  font-size: var(--company-size);
 }
+
 .company {
-  top: 20px;
-  right: 20px;
+  top: var(--card-padding);
+  right: var(--card-padding);
   text-align: right;
 }
+
 .company-name {
-  font-size: 14px;
+  font-size: var(--company-size);
 }
+
 .department {
-  font-size: 12px;
+  font-size: var(--department-size);
   margin-top: 2px;
 }
+
 .name-title {
   top: 50%;
   left: 50%;
@@ -75,19 +102,32 @@ body {
   text-align: center;
   width: 100%;
 }
+
 .name {
-  font-size: 24px;
-  margin-bottom: 15px;
+  font-size: var(--name-size);
+  margin-bottom: clamp(10px, 2vw, 15px);
 }
+
 .title {
-  font-size: 18px;
+  font-size: var(--title-size);
 }
+
 .address-fax-telex {
-  bottom: 20px;
-  left: 20px;
-  font-size: 11px;
-  width: 100%;
+  bottom: var(--card-padding);
+  left: var(--card-padding);
+  font-size: var(--details-size);
+  width: calc(100% - var(--card-padding) * 2);
   text-align: left;
+}
+
+@media (max-width: 480px) {
+  .card {
+    transform: none !important;
+  }
+  
+  .address-fax-telex {
+    word-wrap: break-word;
+  }
 }
 </style>
 </head>
@@ -109,6 +149,7 @@ body {
 <script>
 const card = document.querySelector('.card');
 const embossedElements = document.querySelectorAll('.embossed-text');
+let isTouch = false;
 
 function calculateEmboss(x, y) {
   const cardRect = card.getBoundingClientRect();
@@ -125,26 +166,22 @@ function calculateEmboss(x, y) {
 }
 
 function updateCardPosition(x, y) {
+  if (window.innerWidth <= 480) return;
+  
   const cardRect = card.getBoundingClientRect();
   const centerX = cardRect.left + cardRect.width / 2;
   const centerY = cardRect.top + cardRect.height / 2;
+  const rotateY = (x - centerX) / 20;
+  const rotateX = (centerY - y) / 20;
   
-  // Increase rotation amount while maintaining smoothness
-  const targetRotateY = (x - centerX) / 12; // More rotation on Y axis
-  const targetRotateX = (centerY - y) / 15; // Slightly less on X axis for better depth effect
-  
-  // Faster interpolation for more responsive movement
-  currentRotateX = lerp(currentRotateX, targetRotateX, 0.15);
-  currentRotateY = lerp(currentRotateY, targetRotateY, 0.15);
-  
-  // Apply the transformation
-  card.style.transform = `rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
-  
-  // Continue the animation loop
-  requestId = requestAnimationFrame(() => updateCardPosition(x, y));
+  requestAnimationFrame(() => {
+    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  });
 }
 
 function updateEmbossEffect(x, y) {
+  if (window.innerWidth <= 480) return;
+  
   const emboss = calculateEmboss(x, y);
   embossedElements.forEach(el => {
     el.style.setProperty('--light-shadow', `${emboss.x}px ${emboss.y}px 1px rgba(255,255,255,0.3)`);
@@ -152,40 +189,60 @@ function updateEmbossEffect(x, y) {
   });
 }
 
-let lastMouseX, lastMouseY;
-
-document.addEventListener('mousemove', (e) => {
-  lastMouseX = e.clientX;
-  lastMouseY = e.clientY;
-  if (!requestId) {
-    requestId = requestAnimationFrame(() => updateCardPosition(lastMouseX, lastMouseY));
-  }
-  updateEmbossEffect(e.clientX, e.clientY);
-});
-
-card.addEventListener('mouseenter', () => {
-  card.style.transition = 'none';
-  if (!requestId) {
-    requestId = requestAnimationFrame(() => updateCardPosition(lastMouseX, lastMouseY));
-  }
-});
-
-card.addEventListener('mouseleave', () => {
-  // Cancel the animation frame when mouse leaves
-  if (requestId) {
-    cancelAnimationFrame(requestId);
-    requestId = null;
-  }
-  
-  card.style.transition = 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
-  currentRotateX = 0;
-  currentRotateY = 0;
+function resetCard() {
+  card.style.transition = 'transform 0.5s ease';
   card.style.transform = 'rotateX(0) rotateY(0)';
-  
   embossedElements.forEach(el => {
     el.style.setProperty('--light-shadow', '1px 1px 1px rgba(255,255,255,0.3)');
     el.style.setProperty('--dark-shadow', '-1px -1px 1px rgba(0,0,0,0.1)');
   });
+}
+
+// Mouse events
+document.addEventListener('mousemove', (e) => {
+  if (!isTouch) {
+    updateCardPosition(e.clientX, e.clientY);
+    updateEmbossEffect(e.clientX, e.clientY);
+  }
+});
+
+card.addEventListener('mouseenter', () => {
+  if (!isTouch) {
+    card.style.transition = 'none';
+  }
+});
+
+card.addEventListener('mouseleave', () => {
+  if (!isTouch) {
+    resetCard();
+  }
+});
+
+// Touch events
+card.addEventListener('touchstart', (e) => {
+  isTouch = true;
+  card.style.transition = 'none';
+}, { passive: true });
+
+card.addEventListener('touchmove', (e) => {
+  if (e.touches.length === 1) {
+    const touch = e.touches[0];
+    updateCardPosition(touch.clientX, touch.clientY);
+    updateEmbossEffect(touch.clientX, touch.clientY);
+  }
+}, { passive: true });
+
+card.addEventListener('touchend', () => {
+  resetCard();
+}, { passive: true });
+
+// Handle window resize
+let resizeTimeout;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    resetCard();
+  }, 100);
 });
 </script>
 </body>
