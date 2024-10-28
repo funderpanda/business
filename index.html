@@ -10,12 +10,12 @@
 :root {
   --card-width: min(510px, 90vw);
   --card-height: min(290px, 90vw * 0.57);
-  --card-padding: max(20px, 3vw);
-  --name-size: clamp(18px, 4vw, 24px);
-  --title-size: clamp(14px, 3.5vw, 18px);
-  --company-size: clamp(12px, 2.8vw, 14px);
-  --department-size: clamp(10px, 2.4vw, 12px);
-  --details-size: clamp(9px, 2.2vw, 11px);
+  --card-padding: 30px;
+  --name-size: 24px;
+  --title-size: 18px;
+  --company-size: 14px;
+  --department-size: 12px;
+  --details-size: 11px;
 }
 
 body {
@@ -64,11 +64,6 @@ body {
 
 .small-caps {
   font-variant: small-caps;
-  font-size: 0.9em;
-}
-
-.small-caps::first-letter {
-  font-size: 1.1em;
 }
 
 .old-style-nums {
@@ -94,24 +89,26 @@ body {
 
 .department {
   font-size: var(--department-size);
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .name-title {
   top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  left: 0;
+  transform: translateY(-55%);
   text-align: center;
   width: 100%;
 }
 
 .name {
   font-size: var(--name-size);
-  margin-bottom: clamp(10px, 2vw, 15px);
+  margin-bottom: 20px;
+  letter-spacing: 0.02em;
 }
 
 .title {
   font-size: var(--title-size);
+  letter-spacing: 0.05em;
 }
 
 .address-fax-telex {
@@ -120,9 +117,19 @@ body {
   font-size: var(--details-size);
   width: calc(100% - var(--card-padding) * 2);
   text-align: left;
+  letter-spacing: 0.02em;
 }
 
 @media (max-width: 480px) {
+  :root {
+    --card-padding: 20px;
+    --name-size: 20px;
+    --title-size: 16px;
+    --company-size: 12px;
+    --department-size: 10px;
+    --details-size: 9px;
+  }
+  
   .address-fax-telex {
     word-wrap: break-word;
   }
@@ -141,7 +148,7 @@ body {
       <div class="name embossed-text">Samee MALIK</div>
       <div class="title embossed-text small-caps">Vice President</div>
     </div>
-    <div class="address-fax-telex embossed-text old-style-nums small-caps">358 Exchange Place New York, N.Y. 10099 FAX 212 555 6390 TELEX 10 4534</div>
+    <div class="address-fax-telex embossed-text old-style-nums">358 Exchange Place New York, N.Y. 10099 FAX 212 555 6390 TELEX 10 4534</div>
   </div>
 </div>
 <script>
