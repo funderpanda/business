@@ -128,9 +128,20 @@ function updateCardPosition(x, y) {
   const cardRect = card.getBoundingClientRect();
   const centerX = cardRect.left + cardRect.width / 2;
   const centerY = cardRect.top + cardRect.height / 2;
-  const rotateY = (x - centerX) / 20;
-  const rotateX = (centerY - y) / 20;
-  card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  
+  // Increase rotation amount while maintaining smoothness
+  const targetRotateY = (x - centerX) / 12; // More rotation on Y axis
+  const targetRotateX = (centerY - y) / 15; // Slightly less on X axis for better depth effect
+  
+  // Faster interpolation for more responsive movement
+  currentRotateX = lerp(currentRotateX, targetRotateX, 0.15);
+  currentRotateY = lerp(currentRotateY, targetRotateY, 0.15);
+  
+  // Apply the transformation
+  card.style.transform = `rotateX(${currentRotateX}deg) rotateY(${currentRotateY}deg)`;
+  
+  // Continue the animation loop
+  requestId = requestAnimationFrame(() => updateCardPosition(x, y));
 }
 
 function updateEmbossEffect(x, y) {
@@ -141,18 +152,36 @@ function updateEmbossEffect(x, y) {
   });
 }
 
+let lastMouseX, lastMouseY;
+
 document.addEventListener('mousemove', (e) => {
-  updateCardPosition(e.clientX, e.clientY);
+  lastMouseX = e.clientX;
+  lastMouseY = e.clientY;
+  if (!requestId) {
+    requestId = requestAnimationFrame(() => updateCardPosition(lastMouseX, lastMouseY));
+  }
   updateEmbossEffect(e.clientX, e.clientY);
 });
 
 card.addEventListener('mouseenter', () => {
   card.style.transition = 'none';
+  if (!requestId) {
+    requestId = requestAnimationFrame(() => updateCardPosition(lastMouseX, lastMouseY));
+  }
 });
 
 card.addEventListener('mouseleave', () => {
-  card.style.transition = 'transform 0.5s ease';
+  // Cancel the animation frame when mouse leaves
+  if (requestId) {
+    cancelAnimationFrame(requestId);
+    requestId = null;
+  }
+  
+  card.style.transition = 'transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)';
+  currentRotateX = 0;
+  currentRotateY = 0;
   card.style.transform = 'rotateX(0) rotateY(0)';
+  
   embossedElements.forEach(el => {
     el.style.setProperty('--light-shadow', '1px 1px 1px rgba(255,255,255,0.3)');
     el.style.setProperty('--dark-shadow', '-1px -1px 1px rgba(0,0,0,0.1)');
